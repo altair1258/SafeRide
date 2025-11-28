@@ -61,17 +61,17 @@ function VehicleModel({ rotation, vehicleType }: VehicleVisualizationProps) {
       meshRef.current.rotation.x = THREE.MathUtils.lerp(
         meshRef.current.rotation.x,
         targetRotation.current.x,
-        0.15
+        0.35
       );
       meshRef.current.rotation.y = THREE.MathUtils.lerp(
         meshRef.current.rotation.y,
         targetRotation.current.y,
-        0.15
+        0.35
       );
       meshRef.current.rotation.z = THREE.MathUtils.lerp(
         meshRef.current.rotation.z,
         targetRotation.current.z,
-        0.15
+        0.35
       );
     }
   });
