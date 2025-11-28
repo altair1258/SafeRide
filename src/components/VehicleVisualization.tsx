@@ -14,38 +14,32 @@ function VehicleModel({ rotation, vehicleType }: VehicleVisualizationProps) {
   const { scene } = useGLTF(modelPath);
   const meshRef = useRef<THREE.Group>(null);
 
+  const targetRotation = useRef(new THREE.Euler(0, 0, 0));
+
   useEffect(() => {
     scene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
         const material = mesh.material as THREE.MeshStandardMaterial;
 
-        // --- SMART MATERIAL FIX ---
-        
-        // 1. Detect if this is likely glass/window
-        const isGlass = material.name.toLowerCase().includes('window') || 
-                        material.name.toLowerCase().includes('glass') || 
+        const isGlass = material.name.toLowerCase().includes('window') ||
+                        material.name.toLowerCase().includes('glass') ||
                         material.opacity < 0.5;
 
         if (isGlass) {
-          // Keep glass transparent but fix depth issues
           material.transparent = true;
-          material.opacity = 0.3; // Enforce a nice tint
-          material.depthWrite = false; // Glass usually shouldn't write to depth
+          material.opacity = 0.3;
+          material.depthWrite = false;
           material.side = THREE.FrontSide;
           material.roughness = 0.0;
           material.metalness = 0.8;
         } else {
-          // BODY / TIRES / INTERIOR -> Force Opaque
           material.transparent = false;
           material.opacity = 1.0;
-          material.side = THREE.FrontSide; // Fixes the "Green/White" Z-Fighting
+          material.side = THREE.FrontSide;
           material.depthWrite = true;
-          
-          // Fix "White Car" look:
-          // If the car looks pure white, it might be too metallic/shiny.
-          material.metalness = 0.1; // Low metalness = allows color to show through
-          material.roughness = 0.6; // Matte finish
+          material.metalness = 0.1;
+          material.roughness = 0.6;
         }
 
         mesh.castShadow = true;
@@ -54,11 +48,31 @@ function VehicleModel({ rotation, vehicleType }: VehicleVisualizationProps) {
     });
   }, [scene, vehicleType]);
 
+  useEffect(() => {
+    targetRotation.current.set(
+      -rotation.x * (Math.PI / 180),
+      rotation.y * (Math.PI / 180),
+      rotation.z * (Math.PI / 180)
+    );
+  }, [rotation]);
+
   useFrame(() => {
     if (meshRef.current) {
-      meshRef.current.rotation.x = -rotation.x * (Math.PI / 180);
-      meshRef.current.rotation.y = rotation.y * (Math.PI / 180);
-      meshRef.current.rotation.z = rotation.z * (Math.PI / 180);
+      meshRef.current.rotation.x = THREE.MathUtils.lerp(
+        meshRef.current.rotation.x,
+        targetRotation.current.x,
+        0.15
+      );
+      meshRef.current.rotation.y = THREE.MathUtils.lerp(
+        meshRef.current.rotation.y,
+        targetRotation.current.y,
+        0.15
+      );
+      meshRef.current.rotation.z = THREE.MathUtils.lerp(
+        meshRef.current.rotation.z,
+        targetRotation.current.z,
+        0.15
+      );
     }
   });
 
