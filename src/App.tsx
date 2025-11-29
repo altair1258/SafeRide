@@ -107,7 +107,15 @@ function App() {
       lastPacketTimeRef.current = Date.now();
       setIsConnected(true); // Remove the condition - always set connected when we get data
 
-      const finalData: SensorData = { ...raw, accelerometer: raw.accelerometer };
+      const smoothAlpha = 0.3;
+      const smoothedAccel = {
+        x: lowPassFilter(raw.accelerometer.x, prevAccel.current.x, smoothAlpha),
+        y: lowPassFilter(raw.accelerometer.y, prevAccel.current.y, smoothAlpha),
+        z: lowPassFilter(raw.accelerometer.z, prevAccel.current.z, smoothAlpha),
+      };
+      prevAccel.current = smoothedAccel;
+
+      const finalData: SensorData = { ...raw, accelerometer: smoothedAccel };
 
       setSensorData(finalData);
 

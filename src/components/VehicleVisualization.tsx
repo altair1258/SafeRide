@@ -13,6 +13,7 @@ function VehicleModel({ rotation, vehicleType }: VehicleVisualizationProps) {
   const modelPath = vehicleType === 'car' ? '/car.glb' : '/scooter1.glb';
   const { scene } = useGLTF(modelPath);
   const meshRef = useRef<THREE.Group>(null);
+  const targetRotationRef = useRef({ x: 0, y: 0, z: 0 });
 
   useEffect(() => {
     scene.traverse((child) => {
@@ -46,15 +47,32 @@ function VehicleModel({ rotation, vehicleType }: VehicleVisualizationProps) {
     });
   }, [scene, vehicleType]);
 
+  useEffect(() => {
+    targetRotationRef.current = {
+      x: -rotation.x * (Math.PI / 180),
+      y: rotation.y * (Math.PI / 180),
+      z: rotation.z * (Math.PI / 180),
+    };
+  }, [rotation]);
+
   useFrame(() => {
     if (meshRef.current) {
-      const targetX = -rotation.x * (Math.PI / 180);
-      const targetY = rotation.y * (Math.PI / 180);
-      const targetZ = rotation.z * (Math.PI / 180);
-
-      meshRef.current.rotation.x = targetX;
-      meshRef.current.rotation.y = targetY;
-      meshRef.current.rotation.z = targetZ;
+      const alpha = 0.15;
+      meshRef.current.rotation.x = THREE.MathUtils.lerp(
+        meshRef.current.rotation.x,
+        targetRotationRef.current.x,
+        alpha
+      );
+      meshRef.current.rotation.y = THREE.MathUtils.lerp(
+        meshRef.current.rotation.y,
+        targetRotationRef.current.y,
+        alpha
+      );
+      meshRef.current.rotation.z = THREE.MathUtils.lerp(
+        meshRef.current.rotation.z,
+        targetRotationRef.current.z,
+        alpha
+      );
     }
   });
 
