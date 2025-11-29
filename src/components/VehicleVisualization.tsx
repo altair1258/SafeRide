@@ -52,21 +52,9 @@ function VehicleModel({ rotation, vehicleType }: VehicleVisualizationProps) {
       const targetY = rotation.y * (Math.PI / 180);
       const targetZ = rotation.z * (Math.PI / 180);
 
-      meshRef.current.rotation.x = THREE.MathUtils.lerp(
-        meshRef.current.rotation.x,
-        targetX,
-        0.9
-      );
-      meshRef.current.rotation.y = THREE.MathUtils.lerp(
-        meshRef.current.rotation.y,
-        targetY,
-        0.9
-      );
-      meshRef.current.rotation.z = THREE.MathUtils.lerp(
-        meshRef.current.rotation.z,
-        targetZ,
-        0.9
-      );
+      meshRef.current.rotation.x = targetX;
+      meshRef.current.rotation.y = targetY;
+      meshRef.current.rotation.z = targetZ;
     }
   });
 

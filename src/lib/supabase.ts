@@ -56,7 +56,7 @@ export async function getSensorHistory(days: number = 1) {
 
 export function subscribeSensorData(callback: (data: SensorDataRow) => void) {
   const channel = supabase
-    .channel('sensor_data_changes')
+    .channel('sensor_data_changes', { config: { broadcast: { ack: false } } })
     .on(
       'postgres_changes',
       {
@@ -65,7 +65,9 @@ export function subscribeSensorData(callback: (data: SensorDataRow) => void) {
         table: 'sensor_data',
       },
       (payload) => {
-        callback(payload.new as SensorDataRow);
+        requestAnimationFrame(() => {
+          callback(payload.new as SensorDataRow);
+        });
       }
     )
     .subscribe();
