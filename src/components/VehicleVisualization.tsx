@@ -14,8 +14,6 @@ function VehicleModel({ rotation, vehicleType }: VehicleVisualizationProps) {
   const { scene } = useGLTF(modelPath);
   const meshRef = useRef<THREE.Group>(null);
 
-  const targetRotation = useRef(new THREE.Euler(0, 0, 0));
-
   useEffect(() => {
     scene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
@@ -48,30 +46,26 @@ function VehicleModel({ rotation, vehicleType }: VehicleVisualizationProps) {
     });
   }, [scene, vehicleType]);
 
-  useEffect(() => {
-    targetRotation.current.set(
-      -rotation.x * (Math.PI / 180),
-      rotation.y * (Math.PI / 180),
-      rotation.z * (Math.PI / 180)
-    );
-  }, [rotation]);
-
   useFrame(() => {
     if (meshRef.current) {
+      const targetX = -rotation.x * (Math.PI / 180);
+      const targetY = rotation.y * (Math.PI / 180);
+      const targetZ = rotation.z * (Math.PI / 180);
+
       meshRef.current.rotation.x = THREE.MathUtils.lerp(
         meshRef.current.rotation.x,
-        targetRotation.current.x,
-        0.35
+        targetX,
+        0.9
       );
       meshRef.current.rotation.y = THREE.MathUtils.lerp(
         meshRef.current.rotation.y,
-        targetRotation.current.y,
-        0.35
+        targetY,
+        0.9
       );
       meshRef.current.rotation.z = THREE.MathUtils.lerp(
         meshRef.current.rotation.z,
-        targetRotation.current.z,
-        0.35
+        targetZ,
+        0.9
       );
     }
   });
